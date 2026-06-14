@@ -4,12 +4,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-COLUMNS = [
-    'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs',
-    'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target'
-]
-
-
 def load_data(path='data/heart.csv'):
     df = pd.read_csv(path)
     return df
@@ -18,20 +12,19 @@ def load_data(path='data/heart.csv'):
 def preprocess(df):
     df = df.copy()
 
-    # UCI Cleveland używa '?' jako brakujące wartości
+    # cleveland dataset używa '?' zamiast NaN
     df = df.replace('?', np.nan)
     df = df.astype(float)
 
-    # Tylko 'ca' i 'thal' mają braki – uzupełniamy medianą
+    # tylko ca i thal mają braki, uzupełniamy medianą
     df['ca'] = df['ca'].fillna(df['ca'].median())
     df['thal'] = df['thal'].fillna(df['thal'].median())
 
-    # Sprowadzamy target do binarnego: 0 = brak choroby, 1 = choroba
+    # target ma wartości 0-4, sprowadzamy do 0/1
     df['target'] = (df['target'] > 0).astype(int)
 
     X = df.drop('target', axis=1)
     y = df['target']
-
     return X, y
 
 
@@ -41,11 +34,11 @@ def split_and_scale(X, y, test_size=0.2, random_state=42):
     )
 
     scaler = StandardScaler()
-    X_train_scaled = pd.DataFrame(
+    X_train_s = pd.DataFrame(
         scaler.fit_transform(X_train), columns=X.columns, index=X_train.index
     )
-    X_test_scaled = pd.DataFrame(
+    X_test_s = pd.DataFrame(
         scaler.transform(X_test), columns=X.columns, index=X_test.index
     )
 
-    return X_train_scaled, X_test_scaled, y_train, y_test, scaler
+    return X_train_s, X_test_s, y_train, y_test, scaler
