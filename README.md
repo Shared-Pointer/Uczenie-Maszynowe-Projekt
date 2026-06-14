@@ -279,22 +279,31 @@ Najpierw `01_eda.ipynb`, potem `02_model_training.ipynb`.
 
 ## 8. Wyniki
 
-*(sekcja zostanie uzupełniona po zakończeniu implementacji)*
+|Metryka    | Bazowy RF| Strojony RF|
+|-----------|----------|------------|
+|Accuracy   | 0.8852   | 0.9016     |
+|F1-Score   | 0.8852   | 0.8966     |
+|ROC-AUC    | 0.9513   | 0.9481     |
+|MCC        | 0.7825   | 0.8048     |
 
-| Metryka      | Wartość |
-|--------------|---------|
-| Accuracy     | –       |
-| F1-Score     | –       |
-| ROC-AUC      | –       |
-| MCC          | –       |
-
-**Najważniejsze cechy:**
-1. –
-2. –
-3. –
+- **Las losowy** osiągnął dobre wyniki predykcji choroby serca
+![leranign](plots/learning_curve.png)
+- **GridSearchCV** z 5-fold cross-validation pozwolił znaleźć optymalne hiperparametry
+![ficzerimportance](plots/feature_importance.png)
+- **F1-Score** jest tu szczególnie ważny – równoważny balans między wykrywaniem chorych a unikaniem fałszywych alarmów
+- **ROC-AUC > 0.85** wskazuje na dobrą zdolność rozróżniania klas przy różnych progach
+![roccurve](plots/roc_curve.png)
+- **MCC** potwierdza jakość modelu uwzględniając wszystkie 4 komórki macierzy pomyłek
+![confusion_matrix](plots/confusion_matrix.png)
+- Najważniejsze cechy predykcyjne: `thal`, `cp`, `ca`, `oldpeak`, `thalach`
 
 ---
 
 ## Autorzy
+- Oskar Chrostowski
+- Kajetan Mieloch
+- Kacper Wiszniewski
+- Michał Nowakowski
+- Paweł Szydłowski
 
 Projekt realizowany w ramach przedmiotu **Uczenie Maszynowe** na studiach.
