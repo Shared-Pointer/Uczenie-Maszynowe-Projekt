@@ -1,9 +1,8 @@
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, cross_validate as sk_cross_validate
 
 
-# parametry które chcemy przetestować
 PARAM_GRID = {
     'n_estimators': [100, 200, 300],
     'max_depth': [None, 5, 10, 15],
@@ -35,6 +34,7 @@ def tune_hyperparameters(X_train, y_train, param_grid=None, random_state=42):
 
 
 def cross_validate(model, X, y, cv=5):
-    scores = cross_val_score(model, X, y, cv=cv, scoring='f1', n_jobs=-1)
-    print(f"Cross-val F1: {scores.mean():.4f} (+/- {scores.std() * 2:.4f})")
-    return scores
+    scoring = {'f1': 'f1', 'accuracy': 'accuracy', 'roc_auc': 'roc_auc'}
+    raw = sk_cross_validate(model, X, y, cv=cv, scoring=scoring, n_jobs=-1)
+    results = {metric: raw[f'test_{metric}'] for metric in scoring}
+    return results

@@ -12,15 +12,12 @@ def load_data(path='data/heart.csv'):
 def preprocess(df):
     df = df.copy()
 
-    # cleveland dataset używa '?' zamiast NaN
     df = df.replace('?', np.nan)
     df = df.astype(float)
 
-    # tylko ca i thal mają braki, uzupełniamy medianą
     df['ca'] = df['ca'].fillna(df['ca'].median())
     df['thal'] = df['thal'].fillna(df['thal'].median())
 
-    # target ma wartości 0-4, sprowadzamy do 0/1
     df['target'] = (df['target'] > 0).astype(int)
 
     X = df.drop('target', axis=1)
@@ -41,4 +38,4 @@ def split_and_scale(X, y, test_size=0.2, random_state=42):
         scaler.transform(X_test), columns=X.columns, index=X_test.index
     )
 
-    return X_train_s, X_test_s, y_train, y_test, scaler
+    return X_train, X_test, X_train_s, X_test_s, y_train, y_test, scaler

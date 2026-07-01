@@ -1,0 +1,44 @@
+{
+  "name": "Drzewo decyzyjne",
+  "slug": "decision_tree",
+  "baseline": {
+    "accuracy": 0.7213114754098361,
+    "f1": 0.7301587301587301,
+    "roc_auc": 0.7288961038961038,
+    "mcc": 0.4613002453601612
+  },
+  "tuned": {
+    "accuracy": 0.7540983606557377,
+    "f1": 0.7540983606557377,
+    "roc_auc": 0.8517316017316017,
+    "mcc": 0.5183982683982684
+  },
+  "best_params": {
+    "criterion": "gini",
+    "max_depth": 7,
+    "min_samples_leaf": 1,
+    "min_samples_split": 10
+  },
+  "cv_f1_best": 0.7418110874632614,
+  "grid_size": 90,
+  "fit_time_baseline": 0.003019374999894353,
+  "fit_time_tuned": 0.0013382920001276943,
+  "predict_time": 0.0002427291999993031,
+  "n_train": 242,
+  "n_test": 61,
+  "n_features": 13,
+  "cv": {
+    "f1": {
+      "mean": 0.7418110874632614,
+      "std": 0.09150827277870006
+    },
+    "accuracy": {
+      "mean": 0.7723639455782313,
+      "std": 0.08513157668396201
+    },
+    "roc_auc": {
+      "mean": 0.7792628064367195,
+      "std": 0.09051627393930592
+    }
+  }
+}

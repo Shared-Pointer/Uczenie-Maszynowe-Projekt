@@ -1,8 +1,3 @@
-"""
-Generator prezentacji PDF - Projekt Uczenie Maszynowe
-Uruchom: python generate_pdf.py
-"""
-
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch
@@ -25,7 +20,7 @@ def new_slide(title=None, subtitle=None):
     ax.set_ylim(0, H)
     ax.axis('off')
 
-    # pasek górny
+
     ax.add_patch(plt.Rectangle((0, H - 1.1), W, 1.1, color=BLUE, zorder=1))
 
     if title:
@@ -37,7 +32,7 @@ def new_slide(title=None, subtitle=None):
                 fontsize=11, color='#AACEF5',
                 va='center', ha='left', zorder=2)
 
-    # stopka
+
     ax.add_patch(plt.Rectangle((0, 0), W, 0.35, color=LBLUE, zorder=1))
     ax.text(W / 2, 0.17, 'Predykcja Choroby Serca — Random Forest | Projekt Uczenie Maszynowe',
             fontsize=8, color=BLUE, ha='center', va='center', zorder=2)
@@ -68,9 +63,6 @@ def bullet(ax, x, y, text, fontsize=12, color=DKGRAY, marker='▶'):
             wrap=True)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 1 — TYTUŁ
-# ─────────────────────────────────────────────
 def slide_title(pdf):
     fig = plt.figure(figsize=(W, H))
     ax = fig.add_axes([0, 0, 1, 1])
@@ -78,10 +70,10 @@ def slide_title(pdf):
     ax.set_ylim(0, H)
     ax.axis('off')
 
-    # pełne tło
+
     ax.add_patch(plt.Rectangle((0, 0), W, H, color=BLUE))
 
-    # biały prostokąt środkowy
+
     ax.add_patch(FancyBboxPatch((1.5, 2.2), 13, 5,
                                 boxstyle='round,pad=0.2',
                                 facecolor='white', edgecolor='none', alpha=0.95))
@@ -108,9 +100,6 @@ def slide_title(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 2 — DATASET
-# ─────────────────────────────────────────────
 def slide_dataset(pdf):
     fig, ax = new_slide('Skąd wzięliśmy dane?', 'Dataset: Heart Disease UCI — Cleveland, 1988')
 
@@ -119,7 +108,7 @@ def slide_dataset(pdf):
     ax.text(0.4, 7.0, 'Każdy pacjent to jeden wiersz z 13 cechami + etykieta (choroba: tak/nie).',
             fontsize=13, color=DKGRAY)
 
-    # tabela cech
+
     cols = ['Cecha', 'Co oznacza', 'Przykład']
     rows = [
         ['age',      'Wiek pacjenta',                     '55'],
@@ -136,7 +125,7 @@ def slide_dataset(pdf):
     y0 = 6.3
     row_h = 0.52
 
-    # nagłówki
+
     for j, c in enumerate(cols):
         ax.add_patch(plt.Rectangle((col_x[j] - 0.1, y0 - 0.08),
                                    3.0 if j < 2 else 4.0, row_h,
@@ -166,9 +155,6 @@ def slide_dataset(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 3 — PRZEPŁYW DANYCH
-# ─────────────────────────────────────────────
 def slide_flow(pdf):
     fig, ax = new_slide('Jak działa projekt? Przepływ danych krok po kroku')
 
@@ -205,7 +191,7 @@ def slide_flow(pdf):
                         arrowprops=dict(arrowstyle='->', color=DKGRAY, lw=2),
                         zorder=5)
 
-    # numery modułów
+
     mod_labels = ['data/', 'src/preprocessing.py', 'src/preprocessing.py',
                   'src/model.py', 'src/evaluation.py']
     for i, label in enumerate(mod_labels):
@@ -214,11 +200,11 @@ def slide_flow(pdf):
                 fontsize=8, color='#888', ha='center',
                 fontfamily='monospace')
 
-    # opis pod
+
     ax.text(W / 2, 3.3, 'main.py wywołuje te kroki po kolei — to jest punkt wejścia całego projektu.',
             fontsize=12, color=DKGRAY, ha='center', style='italic')
 
-    # main.py snippet
+
     code_block(ax, 2.5, 1.0, 11, 1.9, [
         '# main.py - punkt startowy',
         'df = load_data("data/heart.csv")          # wczytaj CSV',
@@ -232,9 +218,6 @@ def slide_flow(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 4 — PREPROCESSING
-# ─────────────────────────────────────────────
 def slide_preprocessing(pdf):
     fig, ax = new_slide('Moduł 1: preprocessing.py — Co robimy z danymi?')
 
@@ -274,9 +257,6 @@ def slide_preprocessing(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 5 — CO TO JEST DRZEWO DECYZYJNE
-# ─────────────────────────────────────────────
 def slide_tree(pdf):
     fig, ax = new_slide('Zanim Las — Co to jest Drzewo Decyzyjne?')
 
@@ -284,7 +264,7 @@ def slide_tree(pdf):
             'Wyobraź sobie lekarza, który zadaje pytania jedno po drugim i na końcu stawia diagnozę.',
             fontsize=13, color=DKGRAY)
 
-    # rysujemy drzewko
+
     nodes = {
         'root': (8.0, 6.8, 'thalach < 140?\n(maks. tętno)', BLUE),
         'l1':   (5.0, 5.5, 'cp == 0?\n(typ bólu)', '#27AE60'),
@@ -337,9 +317,6 @@ def slide_tree(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 6 — LAS LOSOWY
-# ─────────────────────────────────────────────
 def slide_forest(pdf):
     fig, ax = new_slide('Random Forest — Las Losowy',
                         'Ensemble Learning: wiele drzew razem daje lepszy wynik niż jedno')
@@ -355,7 +332,7 @@ def slide_forest(pdf):
     for i, p in enumerate(points):
         ax.text(1.0, 7.1 - i * 0.45, p, fontsize=12, color=DKGRAY)
 
-    # schemat drzew → głosowanie
+
     np.random.seed(42)
     n_trees = 7
     xs = np.linspace(1.5, 14.5, n_trees)
@@ -373,12 +350,12 @@ def slide_forest(pdf):
         ax.text(x, y_tree - 0.15, label,
                 fontsize=8.5, color='white', fontweight='bold', ha='center', zorder=4)
 
-    # strzałki w dół do wyniku
+
     for x in xs:
         ax.annotate('', xy=(W/2, 3.5), xytext=(x, y_tree - 0.5),
                     arrowprops=dict(arrowstyle='->', color='#BBB', lw=1.2), zorder=2)
 
-    # wynik
+
     ax.add_patch(FancyBboxPatch((5.5, 2.8), 5.0, 0.9,
                                 boxstyle='round,pad=0.1',
                                 facecolor=GREEN, edgecolor='white',
@@ -402,9 +379,6 @@ def slide_forest(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 7 — DWA MODELE
-# ─────────────────────────────────────────────
 def slide_two_models(pdf):
     fig, ax = new_slide('Dlaczego są DWA modele?',
                         'Baseline vs. Model po strojeniu hiperparametrów')
@@ -413,7 +387,7 @@ def slide_two_models(pdf):
             'Random Forest ma kilka "pokręteł" (hiperparametrów). Jak wiemy jakie ustawić?',
             fontsize=13, color=DKGRAY)
 
-    # model 1 — baseline
+
     ax.add_patch(FancyBboxPatch((0.4, 3.8), 6.8, 3.4,
                                 boxstyle='round,pad=0.15',
                                 facecolor=LBLUE, edgecolor=BLUE,
@@ -434,7 +408,7 @@ def slide_two_models(pdf):
     ax.text(3.8, 4.1, '→ punkt odniesienia — baseline',
             fontsize=10, color=ORANGE, ha='center', zorder=3)
 
-    # model 2 — tuned
+
     ax.add_patch(FancyBboxPatch((8.8, 3.8), 6.8, 3.4,
                                 boxstyle='round,pad=0.15',
                                 facecolor='#FEF9E7', edgecolor=ORANGE,
@@ -470,9 +444,6 @@ def slide_two_models(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 8 — GRIDSEARCHCV
-# ─────────────────────────────────────────────
 def slide_gridsearch(pdf):
     fig, ax = new_slide('GridSearchCV — Jak szukamy najlepszych ustawień?',
                         'Siatka parametrów + Cross-Validation')
@@ -484,7 +455,7 @@ def slide_gridsearch(pdf):
             'Mamy 3 × 4 × 3 × 2 = 72 kombinacje. Każda testowana 5-krotnie (5-fold CV) = 360 treningów.',
             fontsize=12, color='#555')
 
-    # wizualizacja cross-validation
+
     cv_y = 4.5
     fold_colors = [GREEN, BLUE, ORANGE, '#9B59B6', '#E74C3C']
     labels = ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5']
@@ -532,9 +503,6 @@ def slide_gridsearch(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 9 — METRYKI
-# ─────────────────────────────────────────────
 def slide_metrics(pdf):
     fig, ax = new_slide('Jak mierzymy czy model jest dobry? — Metryki',
                         'Sama Accuracy nie wystarczy!')
@@ -584,9 +552,6 @@ def slide_metrics(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 10 — MACIERZ POMYŁEK
-# ─────────────────────────────────────────────
 def slide_confusion(pdf):
     fig, ax = new_slide('Macierz Pomyłek (Confusion Matrix)',
                         'Skąd bierze się F1 i pozostałe metryki?')
@@ -595,7 +560,7 @@ def slide_confusion(pdf):
             'Po co nam ta macierz? Żeby zobaczyć jakie błędy robi model — czy myli zdrowych z chorymi.',
             fontsize=13, color=DKGRAY)
 
-    # macierz 2x2
+
     cells = [
         (4.5, 5.5, 'TN', 'True Negative', 'Model mówi: ZDROWY\nPacjent jest: ZDROWY', GREEN, '28'),
         (8.5, 5.5, 'FP', 'False Positive', 'Model mówi: CHORY\nPacjent jest: ZDROWY', ORANGE, '5'),
@@ -621,7 +586,7 @@ def slide_confusion(pdf):
         ax.text(x + 1.4, y + 0.5, f'({val})',
                 fontsize=9, color='#AAA', ha='center', zorder=5)
 
-    # osie
+
     ax.text(6.5, 7.2, 'Przewidziana klasa', fontsize=11, color=DKGRAY,
             ha='center', fontweight='bold')
     ax.text(4.5, 7.0, 'ZDROWY', fontsize=10, color=DKGRAY, ha='center')
@@ -633,7 +598,7 @@ def slide_confusion(pdf):
     ax.text(2.6, 4.5, 'Prawdziwa\nklasa', fontsize=10, color=DKGRAY,
             ha='center', va='center', fontweight='bold', rotation=90)
 
-    # wzory po prawej
+
     ax.text(11.0, 6.5, 'Precision = TP / (TP + FP)',
             fontsize=11, color=BLUE, fontfamily='monospace')
     ax.text(11.0, 6.05, 'Recall    = TP / (TP + FN)',
@@ -652,9 +617,6 @@ def slide_confusion(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 11 — WYNIKI
-# ─────────────────────────────────────────────
 def slide_results(pdf, results_baseline, results_tuned):
     fig, ax = new_slide('Wyniki — Porównanie Modeli',
                         'Test set: 61 pacjentów, Train set: 242 pacjentów')
@@ -663,7 +625,7 @@ def slide_results(pdf, results_baseline, results_tuned):
             'Oba modele wytrenowane na tych samych danych, oceniane na tym samym zbiorze testowym.',
             fontsize=13, color=DKGRAY)
 
-    # tabela wyników
+
     headers = ['Metryka', 'Baseline RF\n(domyślne)', 'Strojony RF\n(GridSearch)', 'Co mówi?']
     col_x = [0.4, 4.5, 8.0, 11.2]
     col_w = [3.8, 3.2, 2.9, 4.5]
@@ -681,7 +643,7 @@ def slide_results(pdf, results_baseline, results_tuned):
     y0 = 6.5
     row_h = 0.7
 
-    # nagłówki
+
     for j, h in enumerate(headers):
         ax.add_patch(plt.Rectangle((col_x[j], y0), col_w[j] - 0.05, row_h,
                                    color=BLUE, zorder=2))
@@ -717,7 +679,7 @@ def slide_results(pdf, results_baseline, results_tuned):
         ax.text(col_x[3] + 0.15, y + row_h/2, desc,
                 fontsize=10, color='#666', va='center', zorder=3)
 
-    # podsumowanie
+
     avg_improvement = np.mean([
         results_tuned[k] - results_baseline[k]
         for k in ['accuracy', 'f1', 'roc_auc', 'mcc']
@@ -737,9 +699,6 @@ def slide_results(pdf, results_baseline, results_tuned):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 12 — KRZYWA ROC
-# ─────────────────────────────────────────────
 def slide_roc(pdf):
     fig, ax = new_slide('Krzywa ROC — Wizualizacja Jakości Modelu',
                         'Receiver Operating Characteristic')
@@ -793,9 +752,6 @@ def slide_roc(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 13 — FEATURE IMPORTANCE
-# ─────────────────────────────────────────────
 def slide_features(pdf):
     fig, ax = new_slide('Ważność Cech — Które informacje są kluczowe?',
                         'Feature Importance (Gini Importance)')
@@ -848,9 +804,6 @@ def slide_features(pdf):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  SLAJD 14 — WNIOSKI
-# ─────────────────────────────────────────────
 def slide_conclusions(pdf, results_tuned):
     fig, ax = new_slide('Wnioski i Podsumowanie')
 
@@ -891,13 +844,10 @@ def slide_conclusions(pdf, results_tuned):
     plt.close(fig)
 
 
-# ─────────────────────────────────────────────
-#  GŁÓWNA FUNKCJA
-# ─────────────────────────────────────────────
 def generate(output='prezentacja.pdf',
              results_baseline=None, results_tuned=None):
 
-    # wartości domyślne jeśli nie podano wyników
+
     if results_baseline is None:
         results_baseline = {'accuracy': 0.8852, 'f1': 0.8852, 'roc_auc': 0.9513, 'mcc': 0.7825}
     if results_tuned is None:

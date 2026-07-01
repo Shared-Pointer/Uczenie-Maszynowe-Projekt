@@ -1,20 +1,14 @@
-"""
-Generator skryptu PDF do prezentacji Random Forest
-Szczegółowe notatki dla każdego slajdu — Q&A, metodologia, definicje
-Uruchom: python generate_skrypt.py
-"""
-
 import textwrap
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.backends.backend_pdf import PdfPages
 
-# ── Ustawienia strony ────────────────────────────────────────────────────────
-PW, PH = 8.27, 11.69          # A4 w calach
+
+PW, PH = 8.27, 11.69
 MARGIN_L = 0.65
 MARGIN_R = 0.65
 TEXT_W = PW - MARGIN_L - MARGIN_R
-LINE_H = 0.215                # wysokość linii tekstu (cale)
+LINE_H = 0.215
 FONT_BODY = 10.0
 FONT_CODE = 9.0
 
@@ -26,10 +20,8 @@ ORANGE = '#D35400'
 GRAY   = '#F4F4F4'
 DGRAY  = '#444444'
 
-# ── Renderer stron ───────────────────────────────────────────────────────────
 
 class Doc:
-    """Auto-paginacja + prymitywne formatowanie tekstu w matplotlib"""
 
     def __init__(self, pdf):
         self.pdf = pdf
@@ -45,16 +37,16 @@ class Doc:
         self.ax.set_xlim(0, PW)
         self.ax.set_ylim(0, PH)
         self.ax.axis('off')
-        # pasek górny
+
         self.ax.add_patch(plt.Rectangle((0, PH - 0.45), PW, 0.45, color=BLUE, zorder=1))
         self.ax.text(MARGIN_L, PH - 0.22,
                      'Random Forest — Skrypt Prezentacji | Projekt Uczenie Maszynowe',
                      fontsize=8, color='white', va='center', zorder=2)
         self.ax.text(PW - MARGIN_R, PH - 0.22, f'str. {self.page_num}',
                      fontsize=8, color='white', va='center', ha='right', zorder=2)
-        # pasek dolny
+
         self.ax.add_patch(plt.Rectangle((0, 0), PW, 0.28, color=LBLUE, zorder=1))
-        self.y = PH - 0.62   # bieżąca pozycja Y (od góry)
+        self.y = PH - 0.62
 
     def _close_page(self):
         self.pdf.savefig(self.fig, bbox_inches='tight')
@@ -67,10 +59,8 @@ class Doc:
         if self.y - needed < 0.38:
             self._new_page()
 
-    # ── Elementy formatowania ────────────────────────────────────────────────
 
     def chapter(self, num, title):
-        """Duży nagłówek rozdziału (numer slajdu + tytuł)"""
         self._space(0.95)
         y = self.y
         self.ax.add_patch(plt.Rectangle(
@@ -92,7 +82,6 @@ class Doc:
         self.y -= 0.38
 
     def p(self, text, indent=0, color=DGRAY, fontsize=FONT_BODY, bold=False):
-        """Paragraf z automatycznym zawijaniem"""
         avail_chars = int((TEXT_W - indent * 0.18) / 0.092)
         avail_chars = max(avail_chars, 50)
         lines = textwrap.wrap(text, width=avail_chars) if text.strip() else ['']
@@ -147,13 +136,9 @@ class Doc:
         self.y -= h
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  TREŚĆ SKRYPTU — 14 sekcji
-# ══════════════════════════════════════════════════════════════════════════════
-
 def build(doc):
 
-    # ── SLAJD 1: Tytuł ─────────────────────────────────────────────────────
+
     doc.chapter(1, 'Tytuł — Cel projektu')
 
     doc.h2('O czym jest ten projekt?')
@@ -187,7 +172,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 2: Dataset ────────────────────────────────────────────────────
+
     doc.chapter(2, 'Dataset — Co oznaczają cechy?')
 
     doc.h2('Opis wszystkich 13 cech wejściowych')
@@ -240,7 +225,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 3: Przepływ danych ────────────────────────────────────────────
+
     doc.chapter(3, 'Przepływ danych — Jak działa main.py?')
 
     doc.h2('Architektura projektu')
@@ -272,7 +257,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 4: Preprocessing ──────────────────────────────────────────────
+
     doc.chapter(4, 'Preprocessing — Przygotowanie danych')
 
     doc.h2('Problem 1: Brakujące wartości kodowane jako "?"')
@@ -315,7 +300,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 5: Drzewo decyzyjne ───────────────────────────────────────────
+
     doc.chapter(5, 'Drzewo Decyzyjne — Budulec Lasu Losowego')
 
     doc.h2('Jak drzewo decyzyjne się uczy?')
@@ -348,7 +333,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 6: Las Losowy ─────────────────────────────────────────────────
+
     doc.chapter(6, 'Las Losowy (Random Forest) — Ensemble Learning')
 
     doc.h2('Bootstrap Sampling — każde drzewo widzi inne dane')
@@ -386,7 +371,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 7: Dwa modele ─────────────────────────────────────────────────
+
     doc.chapter(7, 'Dwa modele — Baseline vs. Strojony')
 
     doc.h2('Co to są hiperparametry?')
@@ -431,7 +416,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 8: GridSearchCV ───────────────────────────────────────────────
+
     doc.chapter(8, 'GridSearchCV — Jak znaleźliśmy najlepsze parametry?')
 
     doc.h2('Cross-Validation (walidacja krzyżowa)')
@@ -482,7 +467,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 9: Metryki ────────────────────────────────────────────────────
+
     doc.chapter(9, 'Metryki Ewaluacji — Jak mierzymy jakość modelu?')
 
     doc.h2('Dlaczego Accuracy nie wystarczy?')
@@ -540,7 +525,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 10: Macierz pomyłek ───────────────────────────────────────────
+
     doc.chapter(10, 'Macierz Pomyłek — Co dokładnie model pomylił?')
 
     doc.h2('Cztery możliwe wyniki klasyfikacji')
@@ -587,7 +572,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 11: Wyniki ────────────────────────────────────────────────────
+
     doc.chapter(11, 'Wyniki — Analiza i Interpretacja')
 
     doc.h2('Wyniki obu modeli')
@@ -628,7 +613,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 12: Krzywa ROC ────────────────────────────────────────────────
+
     doc.chapter(12, 'Krzywa ROC — Wizualizacja Jakości Modelu')
 
     doc.h2('Jak krok po kroku tworzymy krzywą ROC?')
@@ -667,7 +652,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 13: Feature Importance ────────────────────────────────────────
+
     doc.chapter(13, 'Ważność Cech — Które dane są kluczowe?')
 
     doc.h2('Jak obliczana jest Gini Importance?')
@@ -714,7 +699,7 @@ def build(doc):
 
     doc.divider()
 
-    # ── SLAJD 14: Wnioski ───────────────────────────────────────────────────
+
     doc.chapter(14, 'Wnioski i Podsumowanie')
 
     doc.h2('Co osiągnęliśmy?')

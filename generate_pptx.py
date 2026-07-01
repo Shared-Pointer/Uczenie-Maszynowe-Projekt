@@ -1,9 +1,3 @@
-"""
-Generuje prezentację PPTX z edytowalnymi obiektami (kształty, tekst, tabele).
-Wykresy danych (ROC, Feature Importance) są obrazami matplotlib — reszta to natywne obiekty.
-Uruchom: python generate_pptx.py
-"""
-
 import io
 import numpy as np
 import matplotlib
@@ -16,35 +10,31 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE as MSO
 
-# ── Kolory ────────────────────────────────────────────────────────────────────
-CB   = RGBColor(0x2E, 0x5F, 0xA3)   # niebieski
-CLB  = RGBColor(0xD6, 0xE4, 0xF7)   # jasny niebieski
-CG   = RGBColor(0x27, 0xAE, 0x60)   # zielony
-CR   = RGBColor(0xE7, 0x4C, 0x3C)   # czerwony
-CO   = RGBColor(0xE6, 0x7E, 0x22)   # pomarańczowy
-CGR  = RGBColor(0xF4, 0xF4, 0xF4)   # szary jasny
-CDG  = RGBColor(0x55, 0x55, 0x55)   # szary ciemny
-CW   = RGBColor(0xFF, 0xFF, 0xFF)   # biały
-CDA  = RGBColor(0x1E, 0x1E, 0x1E)   # ciemny (kod)
-CNA  = RGBColor(0xAA, 0xCE, 0xF5)   # jasnobłękitny (subtitle)
-CYL  = RGBColor(0xFE, 0xF9, 0xE7)   # kremowy
-CBDR = RGBColor(0x1A, 0x52, 0x76)   # ciemnoniebieski
 
-# ── Wymiary slajdu 16:9 ───────────────────────────────────────────────────────
+CB   = RGBColor(0x2E, 0x5F, 0xA3)
+CLB  = RGBColor(0xD6, 0xE4, 0xF7)
+CG   = RGBColor(0x27, 0xAE, 0x60)
+CR   = RGBColor(0xE7, 0x4C, 0x3C)
+CO   = RGBColor(0xE6, 0x7E, 0x22)
+CGR  = RGBColor(0xF4, 0xF4, 0xF4)
+CDG  = RGBColor(0x55, 0x55, 0x55)
+CW   = RGBColor(0xFF, 0xFF, 0xFF)
+CDA  = RGBColor(0x1E, 0x1E, 0x1E)
+CNA  = RGBColor(0xAA, 0xCE, 0xF5)
+CYL  = RGBColor(0xFE, 0xF9, 0xE7)
+CBDR = RGBColor(0x1A, 0x52, 0x76)
+
+
 SW   = Cm(33.87)
 SH   = Cm(19.05)
-ML   = Cm(0.8)        # margines lewy/prawy
-CX   = SW - Cm(1.6)  # szerokość treści
-HDR  = Cm(1.9)        # wysokość nagłówka
-FY   = Cm(18.45)      # Y stopki
-FH   = SH - FY        # wysokość stopki
-CY   = HDR            # Y początku treści
-CH   = FY - HDR       # wysokość obszaru treści  ≈ 16.55 cm
+ML   = Cm(0.8)
+CX   = SW - Cm(1.6)
+HDR  = Cm(1.9)
+FY   = Cm(18.45)
+FH   = SH - FY
+CY   = HDR
+CH   = FY - HDR
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  POMOCNICY
-# ══════════════════════════════════════════════════════════════════════════════
 
 def _prs():
     prs = Presentation()
@@ -88,7 +78,6 @@ def _tb(slide, text, l, t, w, h, size=12, bold=False, italic=False,
 
 def _shape_write(sh, lines, sizes, bolds=None, colors=None,
                  aligns=None, anchor=MSO_ANCHOR.MIDDLE):
-    """Wpisuje wieloliniowy tekst do istniejącego kształtu."""
     tf = sh.text_frame
     tf.word_wrap = True
     tf.vertical_anchor = anchor
@@ -107,7 +96,6 @@ def _shape_write(sh, lines, sizes, bolds=None, colors=None,
         r.font.name = 'Calibri'
 
 def _code(slide, lines, l, t, w, fsize=8.5):
-    """Blok kodu — ciemne tło + tekst Consolas."""
     h = Cm(len(lines) * 0.43 + 0.28)
     _rect(slide, l, t, w, h, fill=CDA, rounded=True)
     tb  = slide.shapes.add_textbox(l + Cm(0.22), t + Cm(0.1),
@@ -129,10 +117,9 @@ def _code(slide, lines, l, t, w, fsize=8.5):
         r.font.name  = 'Consolas'
         r.font.size  = Pt(fsize)
         r.font.color.rgb = col
-    return h  # zwraca wysokość bloku
+    return h
 
 def _header(slide, title, subtitle=None):
-    """Standardowy pasek nagłówka + stopka."""
     _rect(slide, Cm(0), Cm(0), SW, HDR, fill=CB)
     _tb(slide, title,
         ML, Cm(0.1), CX, Cm(1.1), size=21, bold=True, color=CW)
@@ -146,7 +133,6 @@ def _header(slide, title, subtitle=None):
 
 def _table(slide, l, t, w, h, headers, rows,
            hdr_fill=CB, alt=CGR, col_widths=None):
-    """Tabela z nagłówkiem."""
     nr = len(rows) + 1
     nc = len(headers)
     tbl = slide.shapes.add_table(nr, nc, l, t, w, h).table
@@ -175,7 +161,6 @@ def _table(slide, l, t, w, h, headers, rows,
     return tbl
 
 def _mpl_img(slide, render_fn, l, t, w, h, dpi=150):
-    """Renderuje matplotlib figure → PNG → wstawia do slajdu."""
     buf = io.BytesIO()
     fig = render_fn()
     fig.savefig(buf, format='png', dpi=dpi, bbox_inches='tight')
@@ -185,7 +170,6 @@ def _mpl_img(slide, render_fn, l, t, w, h, dpi=150):
 
 def _bullet_list(slide, items, l, t, w, h=None,
                  size=11, color=CDG, marker='▸ '):
-    """Lista punktów — jeden TextBox z wieloma akapitami."""
     if h is None:
         h = Cm(len(items) * 0.62)
     tb  = slide.shapes.add_textbox(l, t, w, h)
@@ -202,22 +186,18 @@ def _bullet_list(slide, items, l, t, w, h=None,
         p.space_after = Pt(3)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  SLAJDY
-# ══════════════════════════════════════════════════════════════════════════════
-
 def s01_title(prs):
     slide = _blank(prs)
-    _rect(slide, Cm(0), Cm(0), SW, SH, fill=CB)                    # tło
+    _rect(slide, Cm(0), Cm(0), SW, SH, fill=CB)
     _rect(slide, Cm(1.8), Cm(2.0), Cm(30.3), Cm(15.0),
-          fill=CW, rounded=True)                                     # karta
+          fill=CW, rounded=True)
     _tb(slide, 'Predykcja Choroby Serca',
         Cm(2.5), Cm(3.2), Cm(29.0), Cm(3.0),
         size=34, bold=True, color=CB, align=PP_ALIGN.CENTER)
     _tb(slide, 'przy użyciu Lasu Losowego (Random Forest)',
         Cm(2.5), Cm(6.0), Cm(29.0), Cm(1.5),
         size=18, color=CDG, align=PP_ALIGN.CENTER)
-    _rect(slide, Cm(13.5), Cm(7.6), Cm(7.0), Cm(0.05), fill=CB)    # separator
+    _rect(slide, Cm(13.5), Cm(7.6), Cm(7.0), Cm(0.05), fill=CB)
     _tb(slide, 'Algorytm: Random Forest  •  Dataset: Heart Disease UCI  •  303 pacjentów',
         Cm(2.5), Cm(7.9), Cm(29.0), Cm(0.9),
         size=11, color=CDG, align=PP_ALIGN.CENTER, italic=True)
@@ -282,13 +262,13 @@ def s03_flow(prs):
         sh = _rect(slide, x, y0, bw, bh, fill=col, rounded=True)
         _shape_write(sh, [name, sub], [11, 9], [True, False],
                      [CW, CNA])
-        # moduł pod kształtem
+
         mod_labels = ['data/', 'src/preprocessing.py',
                       'src/preprocessing.py', 'src/model.py', 'src/evaluation.py']
         _tb(slide, mod_labels[i], x, y0 + bh + Cm(0.15), bw, Cm(0.55),
             size=7.5, color=RGBColor(0x88, 0x88, 0x88), align=PP_ALIGN.CENTER,
             font='Consolas')
-        # strzałka
+
         if i < len(steps) - 1:
             ax = x + bw + Cm(0.05)
             _tb(slide, '→', ax, y0 + (bh - Cm(0.8)) / 2, gap - Cm(0.1), Cm(0.8),
@@ -337,7 +317,7 @@ def s04_preprocessing(prs):
         bh = Cm(4.95)
         _rect(slide, ML - Cm(0.1), y, CX + Cm(0.2), bh,
               fill=CGR, border=RGBColor(0xDD, 0xDD, 0xDD), rounded=True)
-        _rect(slide, ML - Cm(0.1), y, Cm(0.18), bh, fill=col)  # kolorowy pasek
+        _rect(slide, ML - Cm(0.1), y, Cm(0.18), bh, fill=col)
         _tb(slide, title,
             ML + Cm(0.25), y + Cm(0.1), CX - Cm(0.3), Cm(0.65),
             size=11, bold=True, color=col)
@@ -350,7 +330,6 @@ def s04_preprocessing(prs):
 
 
 def s05_tree(prs):
-    """Slajd z drzewem decyzyjnym — diagram jako obraz, opis natywny."""
     slide = _blank(prs)
     _header(slide, 'Zanim Las — Co to jest Drzewo Decyzyjne?')
 
@@ -431,12 +410,12 @@ def s06_forest(prs):
         x = x0 + i * (bw + gap)
         sh = _rect(slide, x, y0, bw, bh, fill=col, rounded=True)
         _shape_write(sh, [f'Drzewo {i+1}', votes[i]], [10, 11], [False, True])
-        # strzałka w dół do wyniku
+
         _tb(slide, '↓', x + (bw - Cm(0.6)) / 2,
             y0 + bh + Cm(0.05), Cm(0.6), Cm(0.7),
             size=16, color=RGBColor(0xBB, 0xBB, 0xBB), align=PP_ALIGN.CENTER)
 
-    # pasek wynik
+
     y_res = y0 + bh + Cm(0.85)
     sh_res = _rect(slide, ML, y_res, CX, Cm(1.45), fill=CG, rounded=True)
     _shape_write(sh_res,
@@ -470,7 +449,7 @@ def s07_two_models(prs):
         'Baseline = punkt startu. Strojony = najlepsza kombinacja z 72 testowanych.',
         ML, HDR + Cm(0.2), CX, Cm(0.75), size=11, color=CDG)
 
-    # Lewa karta — Baseline
+
     sh1 = _rect(slide, ML, HDR + Cm(1.1), Cm(14.8), Cm(10.8),
                 fill=CLB, border=CB, bw=Pt(1.5), rounded=True)
     _tb(slide, 'Model 1: Bazowy (Baseline)',
@@ -490,11 +469,11 @@ def s07_two_models(prs):
         ML + Cm(0.3), HDR + Cm(6.0), Cm(14.2), Cm(1.5),
         size=10.5, color=CO)
 
-    # "VS" w środku
+
     _tb(slide, 'VS', SW/2 - Cm(1.0), HDR + Cm(5.0), Cm(2.0), Cm(1.5),
         size=24, bold=True, color=RGBColor(0xCC, 0xCC, 0xCC), align=PP_ALIGN.CENTER)
 
-    # Prawa karta — Tuned
+
     sh2 = _rect(slide, SW - ML - Cm(14.8), HDR + Cm(1.1), Cm(14.8), Cm(10.8),
                 fill=CYL, border=CO, bw=Pt(1.5), rounded=True)
     x2 = SW - ML - Cm(14.8)
@@ -527,14 +506,14 @@ def s08_gridsearch(prs):
         'reszta = trening. Powtarzamy 5 razy. Wynik = średnia F1 z 5 iteracji.',
         ML, HDR + Cm(0.2), CX, Cm(0.75), size=11, color=CDG)
 
-    # wizualizacja 5-fold CV — siatka kolorowych prostokątów
+
     cols5 = [CB, CG, CO, RGBColor(0x9B, 0x59, 0xB6), RGBColor(0x16, 0xA0, 0x85)]
     fw, fh = Cm(5.2), Cm(1.25)
     fx0 = ML + Cm(2.2)
     fy0 = HDR + Cm(1.15)
 
     for fold_i in range(5):
-        # label wiersza
+
         _tb(slide, f'Iter {fold_i+1}',
             ML, fy0 + fold_i*(fh+Cm(0.12)), Cm(2.0), fh,
             size=10, color=CDG, align=PP_ALIGN.RIGHT)
@@ -553,7 +532,7 @@ def s08_gridsearch(prs):
             fy0 + fold_i*(fh+Cm(0.12)), Cm(2.5), fh,
             size=10, color=CG, align=PP_ALIGN.LEFT)
 
-    # Kolumny label
+
     for j in range(5):
         x = fx0 + j * (fw + Cm(0.1))
         _tb(slide, f'Fold {j+1}', x, fy0 - Cm(0.65), fw, Cm(0.58),
@@ -627,12 +606,12 @@ def s09_metrics(prs):
     cw = (CX - Cm(0.8)) / 3
     for i, (col, title, formula_lines, desc) in enumerate(cards):
         x = ML + i * (cw + Cm(0.4))
-        # kolorowy nagłówek
+
         sh_hdr = _rect(slide, x, HDR + Cm(1.05), cw, Cm(1.3), fill=col, rounded=True)
         _shape_write(sh_hdr, [title], [15], [True], [CW])
-        # wzór — ciemne tło
+
         _code(slide, formula_lines, x, HDR + Cm(2.45), cw, fsize=9.0)
-        # opis
+
         _tb(slide, desc, x + Cm(0.2), HDR + Cm(4.5), cw - Cm(0.4), Cm(9.5),
             size=10, color=CDG, wrap=True)
 
@@ -647,7 +626,7 @@ def s10_confusion(prs):
         'czy myli zdrowych z chorymi i odwrotnie.',
         ML, HDR + Cm(0.2), CX, Cm(0.65), size=11, color=CDG)
 
-    # 2×2 macierz jako kształty
+
     cw2, ch2 = Cm(6.2), Cm(3.5)
     mx0, my0 = Cm(3.5), HDR + Cm(1.1)
 
@@ -663,7 +642,7 @@ def s10_confusion(prs):
             _shape_write(sh, [abbr, name], [22, 10], [True, False],
                          [CW, RGBColor(0xEE, 0xEE, 0xEE)])
 
-    # Osie
+
     _tb(slide, 'Przewidziana klasa',
         mx0, my0 - Cm(1.1), cw2*2 + Cm(0.12), Cm(0.6),
         size=10.5, bold=True, color=CDG, align=PP_ALIGN.CENTER)
@@ -678,7 +657,7 @@ def s10_confusion(prs):
     _tb(slide, 'CHORY',  Cm(1.2), my0 + ch2 + Cm(0.12) + ch2/2 - Cm(0.25), Cm(2.0), Cm(0.5),
         size=10, color=CDG, align=PP_ALIGN.RIGHT)
 
-    # Opis po prawej
+
     xl = mx0 + cw2*2 + Cm(0.8)
     descs = [
         (CG,  'TN', 'Zdrowy uznany za\nzdrowego. Dobrze!'),
@@ -693,7 +672,7 @@ def s10_confusion(prs):
         _tb(slide, desc, xl + Cm(1.5), y, Cm(10.0), Cm(1.3),
             size=10, color=CDG, wrap=True)
 
-    # Wzory
+
     _code(slide,
           ['Precision = TP / (TP + FP)',
            'Recall    = TP / (TP + FN)',
@@ -840,7 +819,7 @@ def s13_features(prs):
 
     _mpl_img(slide, _feat_fig, ML, HDR + Cm(1.1), CX, Cm(9.5))
 
-    # Legenda kolorów
+
     y_l = HDR + Cm(10.8)
     for col, rgb, desc in [
         ('czerwony', CR, 'Top 5: thal, cp, ca, oldpeak, thalach — najsilniejszy wpływ kliniczny'),
@@ -889,10 +868,6 @@ def s14_conclusions(prs, rt):
             size=10, color=CDG, wrap=True)
         y += Cm(2.4)
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  GŁÓWNA FUNKCJA
-# ══════════════════════════════════════════════════════════════════════════════
 
 def generate(output='prezentacja.pptx',
              results_baseline=None, results_tuned=None):

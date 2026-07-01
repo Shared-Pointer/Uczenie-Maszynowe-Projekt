@@ -299,6 +299,42 @@ Najpierw `01_eda.ipynb`, potem `02_model_training.ipynb`.
 
 ---
 
+## 9. Rozszerzenie: porównanie algorytmów
+
+Oprócz lasu losowego zaimplementowano **cztery kolejne algorytmy** (każdy w osobnym notebooku, w tym samym stylu i na tym samym datasecie) oraz **notebook zbiorczy** porównujący wszystkie pięć. Cel: pokazać różnice w jakości, czasie trenowania i zachowaniu przy małym zbiorze.
+
+| Notebook | Algorytm | Klasa (scikit-learn) |
+|----------|----------|----------------------|
+| `notebooks/03_logistic_regression.ipynb` | Regresja logistyczna | `LogisticRegression` |
+| `notebooks/04_decision_tree.ipynb` | Drzewo decyzyjne | `DecisionTreeClassifier` |
+| `notebooks/05_gradient_boosting.ipynb` | Gradient Boosting | `GradientBoostingClassifier` |
+| `notebooks/06_neural_network.ipynb` | Prosta sieć neuronowa (MLP) | `MLPClassifier` |
+| `notebooks/07_summary_comparison.ipynb` | **Porównanie zbiorcze** (5 algorytmów) | — |
+
+Wspólny kod (buildery modeli, siatki hiperparametrów, ewaluacja, zapis wyników) mieszka w `src/algorithms.py` — dzięki temu wszystkie notebooki używają **identycznych** definicji modeli i tego samego splitu 80/20 (warunek sprawiedliwego porównania). Każdy model jest strojony `GridSearchCV` (5-fold, `scoring='f1'`) i zapisuje metryki do `results/<algorytm>.json`, z których korzysta notebook zbiorczy. Liczone są **te same 4 metryki** co dla lasu losowego: Accuracy, F1-Score, ROC-AUC, MCC.
+
+### Wyniki porównania (modele po tuningu, zbiór testowy)
+
+| Algorytm | Accuracy | F1-Score | ROC-AUC | MCC | Czas treningu |
+|----------|:--------:|:--------:|:-------:|:---:|:-------------:|
+| Random Forest | **0.9016** | **0.8966** | 0.9481 | **0.8048** | ~51 ms |
+| Sieć neuronowa (MLP) | 0.8689 | 0.8710 | 0.9318 | 0.7546 | ~228 ms |
+| Gradient Boosting | 0.8689 | 0.8571 | 0.9448 | 0.7359 | ~67 ms |
+| Regresja logistyczna | 0.8525 | 0.8475 | **0.9578** | 0.7087 | ~4 ms |
+| Drzewo decyzyjne | 0.7541 | 0.7541 | 0.8517 | 0.5184 | ~1 ms |
+
+![porównanie metryk](plots/summary_metrics.png)
+
+**Wnioski (skrót — pełne w notebooku `07`):**
+- **Jakość:** Random Forest ma najlepszy ranking łączny; regresja logistyczna — najlepsze ROC-AUC. Drzewo decyzyjne wyraźnie odstaje we wszystkich metrykach.
+- **Czas trenowania:** rozpiętość ~2 rzędów wielkości — drzewo i regresja w milisekundach, RF i Gradient Boosting kilkadziesiąt razy wolniej, MLP najwolniejszy (~200× wolniej od drzewa).
+- **Mały zbiór:** Gradient Boosting jest najbardziej „głodny danych"; regresja logistyczna i RF najlepiej wykorzystują pełny zbiór.
+- **Optymalność:** regresja logistyczna leży blisko frontu jakość/koszt — dobra rekomendacja dla tego problemu (mały, tabelaryczny, wymagana interpretowalność).
+
+![optymalność jakość vs koszt](plots/summary_pareto.png)
+
+---
+
 ## Autorzy
 - Oskar Chrostowski
 - Kajetan Mieloch
