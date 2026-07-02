@@ -1,0 +1,16 @@
+{
+  "name": "Random Forest",
+  "slug": "random_forest",
+  "best_params": {
+    "max_depth": 5,
+    "max_features": "sqrt",
+    "min_samples_split": 5,
+    "n_estimators": 100
+  },
+  "tuned": {
+    "accuracy": 0.9016393442622951,
+    "f1": 0.896551724137931,
+    "roc_auc": 0.948051948051948,
+    "mcc": 0.804750708270836
+  }
+}

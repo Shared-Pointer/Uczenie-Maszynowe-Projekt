@@ -1,0 +1,44 @@
+{
+  "name": "Regresja logistyczna",
+  "slug": "logistic_regression",
+  "baseline": {
+    "accuracy": 0.8688524590163934,
+    "f1": 0.8666666666666667,
+    "roc_auc": 0.9512987012987013,
+    "mcc": 0.7451421267603893
+  },
+  "tuned": {
+    "accuracy": 0.8524590163934426,
+    "f1": 0.847457627118644,
+    "roc_auc": 0.9577922077922079,
+    "mcc": 0.7087415755146639
+  },
+  "best_params": {
+    "C": 0.1,
+    "class_weight": null,
+    "penalty": "l2",
+    "solver": "lbfgs"
+  },
+  "cv_f1_best": 0.8034259538910702,
+  "grid_size": 20,
+  "fit_time_baseline": 0.004730698999992455,
+  "fit_time_tuned": 0.004567719999613473,
+  "predict_time": 0.0006297390998952323,
+  "n_train": 242,
+  "n_test": 61,
+  "n_features": 13,
+  "cv": {
+    "f1": {
+      "mean": 0.8034259538910702,
+      "std": 0.058072621441472
+    },
+    "accuracy": {
+      "mean": 0.8262755102040817,
+      "std": 0.04999074374037519
+    },
+    "roc_auc": {
+      "mean": 0.891389367476324,
+      "std": 0.04560017239922029
+    }
+  }
+}

@@ -12,7 +12,10 @@ PLOTS_DIR = 'plots'
 os.makedirs(PLOTS_DIR, exist_ok=True)
 
 
-def compute_metrics(y_test, y_pred, y_prob):
+def compute_metrics(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
+
     acc = accuracy_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     auc = roc_auc_score(y_test, y_prob)
@@ -30,7 +33,8 @@ def compute_metrics(y_test, y_pred, y_prob):
     return {'accuracy': acc, 'f1': f1, 'roc_auc': auc, 'mcc': mcc}
 
 
-def plot_confusion_matrix(y_test, y_pred, save=True):
+def plot_confusion_matrix(model, X_test, y_test, save_path=None):
+    y_pred = model.predict(X_test)
     cm = confusion_matrix(y_test, y_pred)
 
     fig, ax = plt.subplots(figsize=(6, 5))
@@ -42,13 +46,14 @@ def plot_confusion_matrix(y_test, y_pred, save=True):
     ax.set_xlabel('Przewidziana klasa')
     plt.tight_layout()
 
-    if save:
-        plt.savefig(f'{PLOTS_DIR}/confusion_matrix.png', dpi=150, bbox_inches='tight')
+    path = save_path or f'{PLOTS_DIR}/confusion_matrix.png'
+    plt.savefig(path, dpi=150, bbox_inches='tight')
     plt.show()
     plt.close()
 
 
-def plot_roc_curve(y_test, y_prob, save=True):
+def plot_roc_curve(model, X_test, y_test, save_path=None):
+    y_prob = model.predict_proba(X_test)[:, 1]
     fpr, tpr, _ = roc_curve(y_test, y_prob)
     auc = roc_auc_score(y_test, y_prob)
 
@@ -61,13 +66,13 @@ def plot_roc_curve(y_test, y_prob, save=True):
     ax.legend(loc='lower right')
     plt.tight_layout()
 
-    if save:
-        plt.savefig(f'{PLOTS_DIR}/roc_curve.png', dpi=150, bbox_inches='tight')
+    path = save_path or f'{PLOTS_DIR}/roc_curve.png'
+    plt.savefig(path, dpi=150, bbox_inches='tight')
     plt.show()
     plt.close()
 
 
-def plot_feature_importance(model, feature_names, save=True):
+def plot_feature_importance(model, feature_names, save_path=None):
     importances = model.feature_importances_
     std = np.std([t.feature_importances_ for t in model.estimators_], axis=0)
     idx = np.argsort(importances)[::-1]
@@ -82,13 +87,13 @@ def plot_feature_importance(model, feature_names, save=True):
     ax.set_ylabel('Ważność (Gini)')
     plt.tight_layout()
 
-    if save:
-        plt.savefig(f'{PLOTS_DIR}/feature_importance.png', dpi=150, bbox_inches='tight')
+    path = save_path or f'{PLOTS_DIR}/feature_importance.png'
+    plt.savefig(path, dpi=150, bbox_inches='tight')
     plt.show()
     plt.close()
 
 
-def plot_learning_curve(model, X, y, save=True):
+def plot_learning_curve(model, X, y, save_path=None):
     train_sizes, train_scores, val_scores = learning_curve(
         model, X, y,
         cv=5, scoring='f1',
@@ -113,7 +118,7 @@ def plot_learning_curve(model, X, y, save=True):
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
 
-    if save:
-        plt.savefig(f'{PLOTS_DIR}/learning_curve.png', dpi=150, bbox_inches='tight')
+    path = save_path or f'{PLOTS_DIR}/learning_curve.png'
+    plt.savefig(path, dpi=150, bbox_inches='tight')
     plt.show()
     plt.close()

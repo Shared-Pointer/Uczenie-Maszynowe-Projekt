@@ -1,7 +1,5 @@
 # Uczenie Maszynowe – Projekt: Las Losowy (Random Forest)
 
-> **Zadanie:** Zaimplementować model uczenia maszynowego oparty na algorytmie **lasu losowego**, wytrenować go na rzeczywistych danych i ocenić skuteczność za pomocą **trzech metryk** (poza accuracy).
-
 ---
 
 ## Spis treści
@@ -19,7 +17,7 @@
 
 ## 1. Opis projektu
 
-Projekt polega na zbudowaniu klasyfikatora binarnego do **przewidywania choroby serca** u pacjentów. Użyty algorytm to **Random Forest (Las Losowy)** – metoda ensemble bazująca na zbiorze drzew decyzyjnych.
+Projekt polega na zbudowaniu klasyfikatora binarnego do **przewidywania choroby serca** u pacjentów.
 
 **Cel:** Przewidzieć, czy pacjent ma chorobę serca (`1`) czy nie (`0`) na podstawie danych klinicznych.
 
@@ -56,116 +54,7 @@ Projekt polega na zbudowaniu klasyfikatora binarnego do **przewidywania choroby 
 
 ---
 
-## 3. Struktura repozytorium
-
-```
-Uczenie-Maszynowe-Projekt/
-│
-├── data/
-│   └── heart.csv                   # Zbiór danych
-│
-├── notebooks/
-│   ├── 01_eda.ipynb                # Eksploracyjna analiza danych (EDA)
-│   └── 02_model_training.ipynb    # Trening i ewaluacja modelu
-│
-├── src/
-│   ├── preprocessing.py            # Wczytanie i przygotowanie danych
-│   ├── model.py                    # Definicja i trening modelu RF
-│   └── evaluation.py               # Obliczanie metryk i wizualizacje
-│
-├── plots/
-│   ├── confusion_matrix.png        # Macierz pomyłek
-│   ├── roc_curve.png               # Krzywa ROC
-│   ├── feature_importance.png      # Ważność cech
-│   └── learning_curve.png          # Krzywa uczenia
-│
-├── main.py                         # Główny skrypt – pełny pipeline
-├── requirements.txt                # Zależności Python
-└── README.md
-```
-
----
-
-## 4. Plan realizacji
-
-### Krok 1 – Wczytanie i eksploracja danych (EDA)
-
-- Wczytanie datasetu (`pandas`)
-- Sprawdzenie brakujących wartości
-- Statystyki opisowe (`.describe()`)
-- Rozkład klas (`target`: 0 vs 1)
-- Macierz korelacji (heatmapa)
-- Histogramy i boxploty dla cech numerycznych
-- Wykresy słupkowe dla cech kategorycznych
-
-### Krok 2 – Przygotowanie danych (Preprocessing)
-
-- Sprawdzenie i uzupełnienie brakujących wartości (jeśli są)
-- Kodowanie cech kategorycznych (`pd.get_dummies` lub `LabelEncoder`)
-- Podział na zbiór treningowy i testowy: **80% / 20%** (`train_test_split`)
-- Standaryzacja cech numerycznych (`StandardScaler`) – opcjonalna dla RF, ale dobra praktyka
-
-```python
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
-```
-
-### Krok 3 – Trening modelu Random Forest
-
-- Inicjalizacja `RandomForestClassifier` z domyślnymi parametrami
-- Trenowanie na zbiorze treningowym
-- Optymalizacja hiperparametrów: **GridSearchCV** (5-fold cross-validation)
-
-**Hiperparametry do strojenia:**
-
-| Parametr           | Przeszukiwane wartości       | Opis                            |
-|--------------------|------------------------------|---------------------------------|
-| `n_estimators`     | [100, 200, 300]              | Liczba drzew w lesie            |
-| `max_depth`        | [None, 5, 10, 15]            | Maksymalna głębokość drzewa     |
-| `min_samples_split`| [2, 5, 10]                   | Min. próbek do podziału węzła   |
-| `min_samples_leaf` | [1, 2, 4]                    | Min. próbek w liściu            |
-| `max_features`     | ['sqrt', 'log2']             | Liczba cech do rozważenia       |
-
-```python
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GridSearchCV
-
-param_grid = {
-    'n_estimators': [100, 200, 300],
-    'max_depth': [None, 5, 10, 15],
-    'min_samples_split': [2, 5, 10],
-    'max_features': ['sqrt', 'log2']
-}
-
-rf = RandomForestClassifier(random_state=42)
-grid_search = GridSearchCV(rf, param_grid, cv=5, scoring='f1', n_jobs=-1)
-grid_search.fit(X_train, y_train)
-best_model = grid_search.best_estimator_
-```
-
-### Krok 4 – Ewaluacja modelu
-
-- Predykcja na zbiorze testowym
-- Obliczenie **accuracy** oraz **3 dodatkowych metryk** (patrz sekcja 5)
-- Macierz pomyłek (Confusion Matrix)
-- Krzywa ROC i pole pod krzywą (AUC)
-- Analiza ważności cech (`feature_importances_`)
-- Krzywa uczenia (Learning Curve) – diagnoza over/underfitting
-
-### Krok 5 – Wizualizacje i wnioski
-
-- Zestawienie metryk w tabeli
-- Porównanie modelu z/bez tuningu
-- Interpretacja wyników: które cechy mają największy wpływ na diagnozę?
-- Wnioski końcowe
-
----
-
-## 5. Metryki oceny modelu
+## 3. Metryki oceny modelu
 
 Poza **accuracy** używamy trzech metryk, które lepiej opisują jakość klasyfikatora – szczególnie przy niezbalansowanych klasach:
 
@@ -239,7 +128,7 @@ mcc = matthews_corrcoef(y_test, y_pred)
 
 ---
 
-## 6. Technologie
+## 4. Technologie
 
 | Biblioteka       | Wersja      | Zastosowanie                        |
 |------------------|-------------|-------------------------------------|
@@ -253,7 +142,7 @@ mcc = matthews_corrcoef(y_test, y_pred)
 
 ---
 
-## 7. Jak uruchomić
+## 5. Jak uruchomić
 
 ### Instalacja zależności
 
@@ -273,29 +162,49 @@ python main.py
 jupyter notebook notebooks/
 ```
 
-Najpierw `01_eda.ipynb`, potem `02_model_training.ipynb`.
+Uruchamiać od 01 do 07.
 
 ---
 
-## 8. Wyniki
+## 6. Wyniki
 
-|Metryka    | Bazowy RF| Strojony RF|
-|-----------|----------|------------|
-|Accuracy   | 0.8852   | 0.9016     |
-|F1-Score   | 0.8852   | 0.8966     |
-|ROC-AUC    | 0.9513   | 0.9481     |
-|MCC        | 0.7825   | 0.8048     |
+Wyniki znajdują się w notebook'u nr 07 - `07_summary_comparision.ipynb`
 
-- **Las losowy** osiągnął dobre wyniki predykcji choroby serca
-![leranign](plots/learning_curve.png)
-- **GridSearchCV** z 5-fold cross-validation pozwolił znaleźć optymalne hiperparametry
-![ficzerimportance](plots/feature_importance.png)
-- **F1-Score** jest tu szczególnie ważny – równoważny balans między wykrywaniem chorych a unikaniem fałszywych alarmów
-- **ROC-AUC > 0.85** wskazuje na dobrą zdolność rozróżniania klas przy różnych progach
-![roccurve](plots/roc_curve.png)
-- **MCC** potwierdza jakość modelu uwzględniając wszystkie 4 komórki macierzy pomyłek
-![confusion_matrix](plots/confusion_matrix.png)
-- Najważniejsze cechy predykcyjne: `thal`, `cp`, `ca`, `oldpeak`, `thalach`
+
+## 7. Porównanie algorytmów
+
+Zaimplementowano **pięć algorytmów** (każdy w osobnym notebooku, w tym samym stylu i na tym samym datasecie) oraz **notebook zbiorczy** porównujący wszystkie pięć. Cel: pokazać różnice w jakości, czasie trenowania i zachowaniu przy małym zbiorze.
+
+| Notebook | Algorytm |
+|----------|----------|
+| `notebooks/02_model_training.ipynb` | Las losowy |
+| `notebooks/03_logistic_regression.ipynb` | Regresja logistyczna |
+| `notebooks/04_decision_tree.ipynb` | Drzewo decyzyjne |
+| `notebooks/05_gradient_boosting.ipynb` | Gradient Boosting |
+| `notebooks/06_neural_network.ipynb` | Prosta sieć neuronowa (MLP) |
+| `notebooks/07_summary_comparison.ipynb` | **Porównanie zbiorcze** (5 algorytmów) |
+
+Wspólny kod (buildery modeli, siatki hiperparametrów, ewaluacja, zapis wyników) mieszka w `src/algorithms.py` - dzięki temu wszystkie notebooki używają **identycznych** definicji modeli i tego samego splitu 80/20. Każdy model jest strojony `GridSearchCV` (5-fold, `scoring='f1'`) i zapisuje metryki do `results/<algorytm>.json`, z których korzysta notebook zbiorczy. Liczone są **te same 4 metryki**: Accuracy, F1-Score, ROC-AUC, MCC.
+
+### Wyniki porównania (modele po tuningu, zbiór testowy)
+
+| Algorytm | Accuracy | F1-Score | ROC-AUC | MCC | Czas treningu |
+|----------|:--------:|:--------:|:-------:|:---:|:-------------:|
+| Random Forest | **0.9016** | **0.8966** | 0.9481 | **0.8048** | ~51 ms |
+| Sieć neuronowa (MLP) | 0.8689 | 0.8710 | 0.9318 | 0.7546 | ~228 ms |
+| Gradient Boosting | 0.8689 | 0.8571 | 0.9448 | 0.7359 | ~67 ms |
+| Regresja logistyczna | 0.8525 | 0.8475 | **0.9578** | 0.7087 | ~4 ms |
+| Drzewo decyzyjne | 0.7541 | 0.7541 | 0.8517 | 0.5184 | ~1 ms |
+
+![porównanie metryk](plots/summary_metrics.png)
+
+**Wnioski (skrót - pełne w notebooku `07`):**
+- **Jakość:** Random Forest ma najlepszy ranking łączny; regresja logistyczna — najlepsze ROC-AUC. Drzewo decyzyjne wyraźnie odstaje we wszystkich metrykach.
+- **Czas trenowania:** rozpiętość ~2 rzędów wielkości — drzewo i regresja w milisekundach, RF i Gradient Boosting kilkadziesiąt razy wolniej, MLP najwolniejszy (~200× wolniej od drzewa).
+- **Mały zbiór:** Gradient Boosting jest najbardziej „głodny danych"; regresja logistyczna i RF najlepiej wykorzystują pełny zbiór.
+- **Optymalność:** regresja logistyczna leży blisko frontu jakość/koszt - dobra rekomendacja dla tego problemu (mały, tabelaryczny, wymagana interpretowalność).
+
+![optymalność jakość vs koszt](plots/summary_pareto.png)
 
 ---
 
@@ -306,4 +215,4 @@ Najpierw `01_eda.ipynb`, potem `02_model_training.ipynb`.
 - Michał Nowakowski
 - Paweł Szydłowski
 
-Projekt realizowany w ramach przedmiotu **Uczenie Maszynowe** na studiach.
+Projekt realizowany w ramach przedmiotu **Uczenie Maszynowe** na studiach WSB Merito
