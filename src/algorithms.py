@@ -1,15 +1,15 @@
 """Wspólny zestaw narzędzi dla notebooków porównujących algorytmy.
 
-Ten moduł jest jednym źródłem prawdy dla 4 dodatkowych algorytmów
+Ten moduł jest źródłem dla 4 dodatkowych algorytmów
 (regresja logistyczna, drzewo decyzyjne, gradient boosting, prosta sieć MLP).
 Dzięki temu notebooki 03–06 oraz zbiorczy 07 używają IDENTYCZNYCH definicji
 modeli i siatek hiperparametrów, co jest warunkiem sprawiedliwego porównania.
 
 Reużywa istniejących funkcji z src/preprocessing.py, src/evaluation.py i
-src/model.py (są model-agnostyczne). NIE modyfikuje żadnego z tych plików ani
-master_notebook.ipynb — Random Forest ma swoją realizację w src/model.py.
+src/model.py.
+Random Forest ma swoją realizację w src/model.py.
 
-Metryki liczymy tylko 4 (jedyne metryki statystyczne w projekcie):
+Metryki liczymy tylko 4:
 accuracy, F1-Score, ROC-AUC, MCC.
 """
 
@@ -39,11 +39,10 @@ os.makedirs(PLOTS_DIR, exist_ok=True)
 
 
 # --------------------------------------------------------------------------
-# Buildery modeli bazowych (baseline) — sensowne, „domyślne" ustawienia
+# Buildery modeli bazowych (baseline)
 # --------------------------------------------------------------------------
 
 def build_logreg(random_state=RANDOM_STATE):
-    # max_iter podniesiony, bo dane skalowane a lbfgs czasem potrzebuje więcej
     return LogisticRegression(max_iter=1000, random_state=random_state)
 
 
@@ -64,7 +63,7 @@ def build_mlp(random_state=RANDOM_STATE):
 
 
 # --------------------------------------------------------------------------
-# Siatki hiperparametrów (dobrane tak, by tuning trwał kilka–kilkanaście s)
+# Siatki hiperparametrów
 # --------------------------------------------------------------------------
 
 LOGREG_GRID = {
@@ -95,8 +94,8 @@ MLP_GRID = {
 }
 
 
-# Rejestr 4 dodatkowych algorytmów. RF jest dokładany osobno w notebooku 07
-# (jego realizacja żyje w src/model.py) — tu trzymamy tylko nowe algorytmy.
+# Rejestr 4 dodatkowych algorytmów - bo na początku zrobiliśmy tylko jeden (silly błąd)
+# (jego realizacja żyje w src/model.py) - tu trzymamy pozostałe algorytmy.
 ALGORITHMS = {
     'Regresja logistyczna': {
         'slug': 'logistic_regression',
@@ -122,11 +121,11 @@ ALGORITHMS = {
 
 
 # --------------------------------------------------------------------------
-# Tuning (generyczny GridSearchCV — analogiczny do src/model.py)
+# Tuning (generyczny GridSearchCV)
 # --------------------------------------------------------------------------
 
 def tune(estimator, param_grid, X_train, y_train, scoring='f1', cv=5, n_jobs=-1):
-    """GridSearchCV z 5-fold CV. Zwraca (best_estimator_, grid_search)."""
+    """GridSearchCV z 5-fold CV"""
     grid = GridSearchCV(
         estimator, param_grid,
         cv=cv, scoring=scoring, n_jobs=n_jobs,
@@ -136,11 +135,11 @@ def tune(estimator, param_grid, X_train, y_train, scoring='f1', cv=5, n_jobs=-1)
 
 
 # --------------------------------------------------------------------------
-# Ewaluacja — DOKŁADNIE 4 metryki (jedyne metryki statystyczne w projekcie)
+# Ewaluacja - 4 metryki
 # --------------------------------------------------------------------------
 
 def evaluate(model, X_test, y_test):
-    """Liczy 4 metryki: accuracy, F1, ROC-AUC, MCC. Zwraca dict (bez druku)."""
+    """Liczy 4 metryki: accuracy, F1, ROC-AUC, MCC"""
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)[:, 1]
     return {
@@ -152,7 +151,7 @@ def evaluate(model, X_test, y_test):
 
 
 def print_metrics(metrics, title='WYNIKI'):
-    """Ładny wydruk 4 metryk (bez classification_report — rygor 4 metryk)."""
+    """Ładny wydruk 4 metryk"""
     print(f'=== {title} ===')
     print(f"  Accuracy : {metrics['accuracy']:.4f}")
     print(f"  F1-Score : {metrics['f1']:.4f}")
@@ -161,18 +160,18 @@ def print_metrics(metrics, title='WYNIKI'):
 
 
 # --------------------------------------------------------------------------
-# Pomiary czasu (do porównania w notebooku zbiorczym)
+# Pomiary czasu
 # --------------------------------------------------------------------------
 
 def timed_fit(model, X, y):
-    """Trenuje model i zwraca (model, czas_trenowania_w_sekundach)."""
+    """Trenuje model i zwraca"""
     t0 = time.perf_counter()
     model.fit(X, y)
     return model, time.perf_counter() - t0
 
 
 def timed_predict(model, X, repeat=5):
-    """Średni czas predykcji na zbiorze X (uśredniony po `repeat` powtórzeniach)."""
+    """Średni czas predykcji na zbiorze X"""
     t0 = time.perf_counter()
     for _ in range(repeat):
         model.predict(X)
@@ -180,7 +179,7 @@ def timed_predict(model, X, repeat=5):
 
 
 # --------------------------------------------------------------------------
-# Ważność cech — adaptacyjna wg typu modelu
+# Ważność cech
 # --------------------------------------------------------------------------
 
 def plot_importance(model, feature_names, X_test=None, y_test=None,
@@ -239,7 +238,7 @@ def plot_importance(model, feature_names, X_test=None, y_test=None,
 
 
 # --------------------------------------------------------------------------
-# Zapis / odczyt wyników (artefakty dla notebooka zbiorczego)
+# Zapis / odczyt wyników
 # --------------------------------------------------------------------------
 
 def _json_default(o):
@@ -255,7 +254,7 @@ def _json_default(o):
 
 
 def save_results(slug, data):
-    """Zapisuje słownik wyników do results/<slug>.json."""
+    """Zapisuje słownik wyników do results/<slug>.json"""
     os.makedirs(RESULTS_DIR, exist_ok=True)
     path = os.path.join(RESULTS_DIR, f'{slug}.json')
     with open(path, 'w', encoding='utf-8') as f:
@@ -264,7 +263,7 @@ def save_results(slug, data):
 
 
 def load_results(slug):
-    """Wczytuje results/<slug>.json (lub None, jeśli nie istnieje)."""
+    """Wczytuje results/<slug>.json"""
     path = os.path.join(RESULTS_DIR, f'{slug}.json')
     if not os.path.exists(path):
         return None
